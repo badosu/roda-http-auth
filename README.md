@@ -1,6 +1,6 @@
 # Roda Http Authorization
 
-[![Build Status](https://travis-ci.org/badosu/roda-basic-auth.png)](https://travis-ci.org/badosu/roda-basic-auth)
+[![Build Status](https://travis-ci.org/badosu/roda-http-auth.png)](https://travis-ci.org/badosu/roda-http-auth)
 
 Add http authorization methods to Roda.
 
