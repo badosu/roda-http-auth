@@ -21,41 +21,18 @@ plugin :http_auth, authenticator: proc {|user, pass| [user, pass] == %w[foo bar]
                    schemes: %w[basic] # default
 ```
 
-### Additional Configuration
-
-The header sent when the user is unauthorized can be configured via
-`unauthorized_headers` option, globally or locally:
-
-```ruby
-unauthorized_headers: proc do |opts|
-  {'Content-Type' => 'text/plain',
-   'Content-Length' => '0',
-   'WWW-Authenticate' => ('Basic realm="%s"' % opts[:realm])}
-end, # default
-```
-
-The `unauthorized` option can receive a block to be invoked whenever the user
-is unathorized:
-
-```ruby
-plugin :http_auth, unauthorized: proc do |r|
-  logger.warn("Unathorized attempt to access #{r.path}!!")
-end
-```
-
 ## Usage
 
 Call `r.http_auth` inside the routes you want to authenticate the user, it will halt
 the request with 401 response code if the authenticator is false.
-
-An additional `WWW-Authenticate` header is sent as specified on [rfc7235](https://tools.ietf.org/html/rfc7235#section-4.1) and it's realm can be configured.
 
 ### Basic Auth
 
 Basic authorization is the default method:
 
 ```ruby
-r.http_auth { |user, pass| [user, pass] == %w[foo bar] }
+# Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+r.http_auth { |user, pass| [user, pass] == ['Aladdin', 'open sesame'] }
 ```
 
 ### Schemes
@@ -75,10 +52,11 @@ r.http_auth(schemes: %w[bearer]) { |token| token == '4t0k3n' }
 
 ### Scheme: Bearer
 
-When the `Bearer` authorization is scheme is passed, if whitelisted, the token
-is passed to the authenticator:
+When the `Bearer` scheme is passed, if whitelisted, the token is passed to
+the authenticator:
 
 ```ruby
+# Authorization: Bearer 4t0k3n
 r.http_auth { |token| token == '4t0k3n' }
 ```
 
@@ -105,12 +83,6 @@ Authorization: Digest username="Mufasa",
 r.http_auth { |s, p| [s, p['username']] == ['digest', 'Mufasa'] }
 ```
 
-## Test
-
-```sh
-bundle exec ruby test/*.rb
-```
-
 ## Warden
 
 To avoid having your 401 responses intercepted by warden, you need to configure
@@ -118,6 +90,36 @@ the unauthenticated callback that is called just before the request is halted:
 
 ```ruby
 plugin :http_auth, unauthorized: proc {|r| r.env['warden'].custom_failure! }
+```
+
+## Additional Configuration
+
+The header sent when the user is unauthorized can be configured via
+`unauthorized_headers` option, globally or locally:
+
+```ruby
+unauthorized_headers: proc do |opts|
+  {'Content-Type' => 'text/plain',
+   'Content-Length' => '0',
+   'WWW-Authenticate' => ('Basic realm="%s"' % opts[:realm])}
+end, # default
+```
+
+The `unauthorized` option can receive a block to be invoked whenever the user
+is unathorized:
+
+```ruby
+plugin :http_auth, unauthorized: proc do |r|
+  logger.warn("Unathorized attempt to access #{r.path}!!")
+end
+```
+
+An additional `WWW-Authenticate` header is sent as specified on [rfc7235](https://tools.ietf.org/html/rfc7235#section-4.1) and it's realm can be configured as well.
+
+## Test
+
+```sh
+bundle exec ruby test/*.rb
 ```
 
 ## Contributing
