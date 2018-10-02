@@ -214,17 +214,5 @@ describe 'Roda::RodaPlugins::HttpAuth' do
 
       assert_unauthorized
     end
-
-    it "is bad request if there's a syntax problem with the scheme" do
-      roda { |r| r.plugin :http_auth, schemes: %w[token] }
-
-      post_auth { true }
-
-      header 'Authorization', 'Token 4t0k3n=='
-
-      post '/auth'
-
-      assert_equal 400, last_response.status
-    end
   end
 end

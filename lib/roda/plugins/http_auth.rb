@@ -40,9 +40,15 @@ module Roda::RodaPlugins
           credentials = if auth.basic?
                           auth.credentials
                         elsif auth.scheme == 'bearer'
-                          [env['HTTP_AUTHORIZATION'].strip.split(' ').last]
+                          [env['HTTP_AUTHORIZATION'].split(' ', 2).last]
                         else
-                          [auth.scheme, _extract_credentials]
+                          http_auth = env['HTTP_AUTHORIZATION'].split(' ', 2)
+                                                               .last
+
+                          creds = !http_auth.include?('=') ? http_auth :
+                                    Rack::Auth::Digest::Params.parse(http_auth)
+
+                          [auth.scheme, creds]
                         end
 
           if authenticator.call(*credentials)
@@ -54,18 +60,6 @@ module Roda::RodaPlugins
         rescue StandardError
           halt [400, auth_opts[:bad_request_headers].call(auth_opts), []]
         end
-      end
-
-      def _extract_credentials
-        authorization = env['HTTP_AUTHORIZATION'].split(' ', 2).last
-        parts = authorization.split(',')
-
-        return parts.first if parts.one? && !parts.first.include?('=')
-
-        key_values = parts.map {|p| p.strip.split(/\=\"?/) }
-                          .map {|k, v| [k, v.chomp('"').gsub(/\\\"/, '"')] }
-
-        Hash[key_values]
       end
     end
   end

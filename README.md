@@ -60,7 +60,7 @@ the authenticator:
 r.http_auth { |token| token == '4t0k3n' }
 ```
 
-### Formatted parameters schemes
+### Schemes with formatted parameters
 
 For schemes that require formatted params authorization header, like `Digest`,
 the scheme and the parsed params are passed to the authenticator:
@@ -124,7 +124,7 @@ bundle exec ruby test/*.rb
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/badosu/roda-basic-auth.
+Bug reports and pull requests are welcome on GitHub at https://github.com/badosu/roda-http-auth.
 
 ## License
 
