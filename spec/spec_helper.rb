@@ -3,6 +3,7 @@ $: << 'lib'
 require 'minitest/autorun'
 require 'roda'
 
+require 'pry'
 require 'rack/test'
 
 class Minitest::Spec
@@ -13,7 +14,17 @@ class Minitest::Spec
   def app_root(*opts, &block)
     app.route do |r|
       r.root do
-        r.basic_auth(*opts, &block)
+        r.http_auth(*opts, &block)
+
+        "I am ROOT!"
+      end
+    end
+  end
+
+  def post_auth(*opts, &block)
+    app.route do |r|
+      r.post 'auth' do
+        r.http_auth(*opts, &block)
 
         "I am ROOT!"
       end
@@ -33,7 +44,7 @@ class Minitest::Spec
     assert_equal "I am ROOT!", last_response.body
   end
 
-  def assert_unauthorized(realm: app.opts[:basic_auth][:realm])
+  def assert_unauthorized(realm: app.opts[:http_auth][:realm])
     assert_equal 401, last_response.status
     assert_equal "Basic realm=\"#{realm}\"", last_response['WWW-Authenticate']
   end

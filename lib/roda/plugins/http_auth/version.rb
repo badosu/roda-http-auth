@@ -1,7 +1,7 @@
 class Roda
   module RodaPlugins
-    module BasicAuth
-      VERSION = "0.1.1"
+    module HttpAuth
+      VERSION = "0.1.2"
     end
   end
 end
