@@ -14,9 +14,19 @@ class Minitest::Spec
   def app_root(*opts, &block)
     app.route do |r|
       r.root do
-        r.http_auth(*opts, &block)
+        http_auth(*opts, &block)
 
         "I am ROOT!"
+      end
+    end
+  end
+
+  def error_root(*opts, &block)
+    app.route do |r|
+      r.root do
+        http_auth(*opts, &block)
+
+        raise 'This code path should not have been reached'
       end
     end
   end
@@ -24,7 +34,7 @@ class Minitest::Spec
   def post_auth(*opts, &block)
     app.route do |r|
       r.post 'auth' do
-        r.http_auth(*opts, &block)
+        http_auth(*opts, &block)
 
         "I am ROOT!"
       end

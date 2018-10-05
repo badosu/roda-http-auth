@@ -1,6 +1,40 @@
 require File.expand_path("spec_helper", File.dirname(__FILE__))
 
 describe 'Roda::RodaPlugins::HttpAuth' do
+  describe 'when unauthorized block is provided' do
+    before do
+      roda do |r|
+        r.plugin :http_auth, authenticator: ->(u, p) { [u, p] == %w[foo bar] }
+        r.plugin :render, views: 'spec/views'
+      end
+
+      error_root(unauthorized: ->(r) { render('403') })
+
+      basic_authorize(*credentials)
+    end
+
+    describe 'and authenticator matches' do
+      let(:credentials) { %w[notfoo notbar] }
+
+      it 'is performed' do
+        get '/'
+
+        assert_match 'You were unauthorized!', last_response.body
+        assert_unauthorized
+      end
+    end
+
+    describe 'and authenticator matches' do
+      let(:credentials) { %w[foo bar] }
+
+      it 'proceeds with the request' do
+        assert_raises('This code path should not have been reached') do
+          get '/'
+        end
+      end
+    end
+  end
+
   describe 'when global authenticator is configured' do
     before do
       roda do |r|
