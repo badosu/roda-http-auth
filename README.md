@@ -4,6 +4,14 @@
 
 Add http authorization methods to Roda.
 
+## Installation
+
+This is an external plugin. Install it by adding the gem to your gemfile:
+
+```ruby
+gem 'roda-http-auth'
+```
+
 ## Configuration
 
 Configure your Roda application to use this plugin:
